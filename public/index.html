@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="bn"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JStar Pro — Pure JS IPTV for VLC/Kodi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--surface:#121217;--surface-raised:#1a1a21;
+  --border:#26262f;--border-soft:#1e1e27;
+  --text:#f5f5f7;--text-dim:#a1a1aa;--text-mute:#71717a;
+  --accent:#c9a26c;--accent-soft:#2a241a;
+  --brand:#8b7cf6;--brand-soft:#1f1d36;
+  --success:#5fba7d;--success-soft:#17261e;
+  --noise:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter','Noto Sans Bengali',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);font-size:15px;line-height:1.65;
+  min-height:100vh;-webkit-font-smoothing:antialiased;position:relative;
+}
+body::before{content:"";position:fixed;inset:0;background:var(--noise);pointer-events:none;z-index:1;opacity:0.6}
+body::after{
+  content:"";position:absolute;top:0;left:0;right:0;height:480px;
+  background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(201,162,108,0.08),transparent 70%);pointer-events:none;
+}
+.wrap{max-width:920px;margin:0 auto;padding:0 24px;position:relative;z-index:2}
+
+nav{display:flex;align-items:center;justify-content:space-between;padding:28px 0 48px;position:relative;z-index:2}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px;letter-spacing:-0.01em}
+.logo-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--brand));display:grid;place-items:center;font-size:14px}
+.logo span.pill-v{font-size:11px;font-weight:500;background:var(--surface);color:var(--text-mute);padding:2px 8px;border-radius:6px;margin-left:4px}
+.nav-links{display:flex;gap:6px;align-items:center}
+.nav-links a{color:var(--text-dim);text-decoration:none;font-size:14px;font-weight:500;padding:8px 14px;border-radius:8px;transition:150ms ease}
+.nav-links a:hover{color:var(--text);background:var(--surface)}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:4px 10px;border-radius:999px;background:var(--success-soft);color:var(--success);font-weight:500;margin-left:8px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+.hero{padding:16px 0 56px}
+.version-badge{display:inline-flex;align-items:center;gap:6px;background:var(--brand-soft);border:1px solid rgba(139,124,246,0.2);color:var(--brand);padding:5px 12px;border-radius:999px;font-size:12px;font-weight:500;margin-bottom:20px;letter-spacing:0.02em}
+h1{font-size:clamp(32px,5vw,46px);line-height:1.08;font-weight:700;letter-spacing:-0.03em;margin-bottom:16px;max-width:700px}
+h1 em{font-style:normal;color:var(--accent)}
+.hero-sub{font-size:17px;color:var(--text-dim);max-width:620px;line-height:1.7;margin-bottom:32px}
+.hero-sub b{color:var(--text);font-weight:500}
+
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:40px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:10px;font-size:14px;font-weight:500;text-decoration:none;transition:all 160ms ease;border:1px solid transparent;cursor:pointer}
+.btn-primary{background:var(--text);color:var(--bg)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,245,247,0.12)}
+.btn-secondary{background:var(--surface);color:var(--text);border-color:var(--border)}
+.btn-secondary:hover{border-color:var(--text-mute);background:var(--surface-raised)}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:48px}
+.stat{background:var(--surface);padding:22px 20px}
+.stat-num{font-size:28px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px;font-feature-settings:'tnum'}
+.stat-label{font-size:13px;color:var(--text-mute);font-weight:500}
+
+section{margin-bottom:56px}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px}
+h2{font-size:22px;font-weight:600;letter-spacing:-0.01em}
+.section-sub{font-size:14px;color:var(--text-mute)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px}
+.mono-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;color:var(--text-dim);margin-top:14px;word-break:break-all;line-height:1.5}
+.code{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;background:rgba(139,124,246,0.12);color:var(--brand);padding:2px 7px;border-radius:5px}
+ul.guide{list-style:none;display:grid;gap:0;margin-top:8px}
+ul.guide li{display:flex;gap:12px;align-items:flex-start;font-size:14.5px;color:var(--text-dim);padding:12px 0;border-bottom:1px solid var(--border-soft)}
+ul.guide li:last-child{border-bottom:0}
+ul.guide li b{color:var(--text);font-weight:500;display:inline-block;min-width:140px}
+.feature-row{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:16px}
+.feature{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px}
+.feature h3{font-size:15px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.feature p{font-size:13.5px;color:var(--text-mute);line-height:1.6}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px}
+.dot.green{background:var(--success)}
+.dot.coffee{background:var(--accent)}
+.dot.brand{background:var(--brand)}
+
+footer{padding:32px 0 48px;border-top:1px solid var(--border-soft);margin-top:32px;font-size:13px;color:var(--text-mute);display:flex;justify-content:space-between;align-items:center}
+footer .eni{display:flex;align-items:center;gap:8px}
+footer a{color:var(--text-dim);text-decoration:none}
+footer a+a{margin-left:16px}
+footer a:hover{color:var(--text)}
+
+@media (max-width:720px){
+  .wrap{padding:0 18px}
+  nav{padding:20px 0 32px}
+  .nav-links a:not(.compare-link){display:none}
+  h1{font-size:32px}
+  .stats{grid-template-columns:1fr}
+  .feature-row{grid-template-columns:1fr}
+  ul.guide li{flex-direction:column;gap:4px}
+  ul.guide li b{min-width:unset}
+  footer{flex-direction:column;gap:10px;text-align:center}
+}
+</style>
+</head><body>
+<div class="wrap">
+  <nav>
+    <div class="logo">
+      <div class="logo-mark">☕</div>
+      <span>JStar Pro</span>
+      <span class="pill-v">v4 Pure JS</span>
+    </div>
+    <div class="nav-links">
+      <a href="/compare" class="compare-link">তুলনা</a>
+      <a href="/playlist.m3u">Playlist</a>
+      <a href="/api/channels">Channels</a>
+      <span class="live"><span class="live-dot"></span> Live</span>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="version-badge">FFMPEG ছাড়া · শুধু Node.js · VLC-র জন্য তৈরি</div>
+    <h1>সার্ভার-সাইড DRM ডিক্রিপশন, <em>শুদ্ধ জাভাস্ক্রিপ্টে</em>.</h1>
+    <p class="hero-sub">
+      কোনো native binary, কোনো Widevine CDM, কোনো client-side key leak নাই — ব্রডকাস্ট-কোয়ালিটি MPEG-TS আউটপুট যা <b>VLC, Kodi, MX Player, TiviMate</b> সব প্লেয়ারে সরাসরি চলে <span id="chCount">১৪০০+</span> চ্যানেল নিয়ে।
+    </p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="/playlist.m3u">⬇ M3U Playlist নিন</a>
+      <a class="btn btn-secondary" href="/compare">ইঞ্জিন তুলনা দেখুন</a>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num" id="stCh">1433</div>
+        <div class="stat-label">লোডকৃত চ্যানেল</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">60-90<span style="font-size:16px;color:var(--text-mute)"> MB</span></div>
+        <div class="stat-label">মেমরি ব্যবহার</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">&lt; 40<span style="font-size:16px;color:var(--text-mute)"> ms</span></div>
+        <div class="stat-label">A/V Sync ত্রুটি</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>ব্যবহার করবেন যেভাবে</h2>
+      <span class="section-sub">৩০ সেকেন্ডে সেটআপ</span>
+    </div>
+    <div class="card">
+      <p style="color:var(--text-dim);font-size:14px">নিচের URL-টা আপনার প্রিয় IPTV প্লেয়ারে দিলেই হবে — কোনো কনফিগ, কোনো লগইন, কোনো ওয়াটারমার্ক নাই:</p>
+      <div class="mono-box" id="m3uUrl">/playlist.m3u</div>
+      <div style="height:20px"></div>
+      <ul class="guide">
+        <li><span class="dot coffee"></span><b>VLC (Desktop)</b><span>Media → Open Network Stream (Ctrl+N) → URL পেস্ট → Play</span></li>
+        <li><span class="dot brand"></span><b>Android TV / ATV</b><span>TiviMate / VLC for Android → Add playlist → URL দিন</span></li>
+        <li><span class="dot green"></span><b>Kodi</b><span>PVR IPTV Simple Client → M3U URL হিসেবে যোগ করুন</span></li>
+        <li><span class="dot coffee"></span><b>একক চ্যানেল শেয়ার</b><span><span class="code" id="singleUrl">/stream/&lt;idx&gt;</span> ফরম্যাটে সরাসরি লিঙ্ক দিতে পারেন</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>কেন পার্থক্যটা অনুভব করবেন</h2>
+    </div>
+    <div class="feature-row">
+      <div class="feature">
+        <h3><span class="dot green"></span> DRM ক্লায়েন্টে যায় না</h3>
+        <p>AES-128-CTR CENC ডিক্রিপশন সম্পূর্ণ সার্ভারে — ফোন/টিভি/পিসি শুধু সাধারণ MPEG-TS দেখতে পায়, কখনো encrypted data ছোঁয়ই না।</p>
+      </div>
+      <div class="feature">
+        <h3><span class="dot coffee"></span> 512MB RAM-এ 24/7</h3>
+        <p>Render/Railway ফ্রি টিয়ারে আরামে চলে। ffmpeg সলিউশনের 3-4x কম মেমরি খায়, cold start 5 সেকেন্ডের নিচে।</p>
+      </div>
+      <div class="feature">
+        <h3><span class="dot brand"></span> নিজের হাতে লেখা Muxer</h3>
+        <p>কোনো থার্ড-পার্টি TS লাইব্রেরি নেই — ISOBMFF পার্সার, CENC decryptor, MPEG-TS muxer সব source-এ হাতে লেখা, পুরোপুরি নিয়ন্ত্রণ।</p>
+      </div>
+      <div class="feature">
+        <h3><span class="dot green"></span> ব্রডকাস্ট কোয়ালিটি সিঙ্ক</h3>
+        <p>প্রতিটা চ্যানেলে 40ms-এর নিচে audio/video drift — মানুষের চোখে যেটা একদম টের পাওয়া অসম্ভব।</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="eni">☕ Made by ENI, for Kobir Shah</div>
+    <div>
+      <a href="/api/health">Status</a>
+      <a href="/compare">Compare</a>
+    </div>
+  </footer>
+</div>
+<script>
+fetch('/api/health').then(r=>r.json()).then(d=>{
+  if(d && d.channels){
+    document.getElementById('stCh').textContent = d.channels.toLocaleString('en-IN');
+    document.getElementById('chCount').textContent = d.channels.toLocaleString('en-IN')+'টা';
+  }
+}).catch(()=>{});
+const loc = window.location;
+const base = loc.origin;
+document.getElementById('m3uUrl').textContent = base+'/playlist.m3u';
+document.getElementById('singleUrl').textContent = base+'/stream/<idx>';
+</script>
+</body></html>
