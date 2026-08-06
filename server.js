@@ -10,8 +10,8 @@
 
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import fastifyStatic from '@fastify/static';
 import util from 'node:util';
+import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadPlaylist } from './lib/playlist.js';
@@ -19,6 +19,16 @@ import { getPipeline, cleanupPipeline } from './lib/stream.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(__dirname, 'public');
+
+// Pre-load the static HTML pages at startup (they're tiny, 12KB+28KB)
+let indexHtml, compareHtml;
+try {
+  indexHtml = await readFile(join(PUBLIC_DIR, 'index.html'), 'utf8');
+  compareHtml = await readFile(join(PUBLIC_DIR, 'compare.html'), 'utf8');
+} catch (e) {
+  console.error('failed to load public pages:', e.message);
+  process.exit(1);
+}
 
 const PORT = process.env.PORT || 3200;
 const HOST = '0.0.0.0';
@@ -44,25 +54,19 @@ const logger = buildLogger();
 const app = Fastify({ logger, disableRequestLogging: true, trustProxy: true });
 await app.register(cors, { origin: true, credentials: true });
 
-// ---- Serve dedicated static pages (home + comparison) ----
-await app.register(fastifyStatic, {
-  root: PUBLIC_DIR,
-  serve: false, // we'll serve index/compare manually so URLs stay clean
-});
+// ---- Clean redirects for old/direct .html URLs ----
+app.get('/index.html', async (_req, reply) => reply.redirect('/', 301));
+app.get('/compare.html', async (_req, reply) => reply.redirect('/compare', 301));
+app.get('/home', async (_req, reply) => reply.redirect('/', 301));
 
-// ---- Clean redirects for old/direct html URLs ----
-app.get('/index.html', async (_req, reply) => reply.redirect(301, '/'));
-app.get('/compare.html', async (_req, reply) => reply.redirect(301, '/compare'));
-app.get('/home', async (_req, reply) => reply.redirect(301, '/'));
-
-// ---- Static HTML pages ----
-app.get('/', (_req, reply) => reply.sendFile('index.html'));
-app.get('/compare', (_req, reply) => reply.sendFile('compare.html'));
+// ---- Static HTML pages (served from pre-loaded memory, zero plugins) ----
+app.get('/', (_req, reply) => reply.type('text/html; charset=utf-8').send(indexHtml));
+app.get('/compare', (_req, reply) => reply.type('text/html; charset=utf-8').send(compareHtml));
 
 // ---- API ----
 app.get('/api/health', async () => {
   const pl = await loadPlaylist();
-  return { ok: true, version: '4.0-pure-js', channels: pl.length, uptime: process.uptime()|0, engine: 'node+tsmux' };
+  return { ok: true, version: '4.2.1-pure-js', channels: pl.length, uptime: process.uptime()|0, engine: 'node+tsmux' };
 });
 
 app.get('/api/channels', async () => {
