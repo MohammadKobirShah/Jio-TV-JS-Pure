@@ -1,7 +1,7 @@
 {
   "name": "jstar-vlc-pure",
-  "version": "4.2.1",
-  "description": "JStar Pro VLC — pure-JS server-side DRM decryption. No ffmpeg.",
+  "version": "4.2.4",
+  "description": "JStar Pro VLC — pure-JS server-side DRM decryption. No ffmpeg. VLC/Kodi/MX/TiviMate verified.",
   "type": "module",
   "main": "server.js",
   "scripts": {

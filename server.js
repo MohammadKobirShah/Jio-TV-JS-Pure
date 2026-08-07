@@ -66,7 +66,7 @@ app.get('/compare', (_req, reply) => reply.type('text/html; charset=utf-8').send
 // ---- API ----
 app.get('/api/health', async () => {
   const pl = await loadPlaylist();
-  return { ok: true, version: '4.2.2-pure-js', channels: pl.length, uptime: process.uptime()|0, engine: 'node+tsmux' };
+  return { ok: true, version: '4.2.4-pure-js', channels: pl.length, uptime: process.uptime()|0, engine: 'node+tsmux' };
 });
 
 app.get('/api/channels', async () => {
