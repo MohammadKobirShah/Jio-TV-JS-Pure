@@ -1,4 +1,4 @@
-# ☕ JStar Pro — Pure-JS VLC Edition (v4.2.3)
+# ☕ JStar Pro — Pure-JS VLC Edition (v4.2.4)
 
 > ENI বানিয়েছে Kobir Shah-er জন্য 💜
 > **কোনো ffmpeg নাই, কোনো native binary নাই — ১০০% জাভাস্ক্রিপ্ট।**
@@ -64,7 +64,16 @@ M3U playlist: `http://localhost:3200/playlist.m3u`
 - [x] একাধিক ক্লায়েন্টে একই পাইপলাইন fan-out
 - [x] Port 3200
 
-## v4.2.3 — Black-screen deep fix 🔧
+## v4.2.4 — Black-screen definitive fix 🖤→🎬
+
+- **mp4demux-এ trun first-sample-flags পার্সিং বাগ ফিক্স** — এটাই ছিল প্রকৃত video decode corruption-এর কারণ!
+  - আগে `trun_flags & 0x04` (first-sample-flags-present) সত্বেও প্রথম স্যাম্পলের জন্যও pp থেকে আরেকটা u32 per-sample flags পড়া হতো → সব পরের size/duration/cts/flags 4 বাইট shift হয়ে যেতো → IDR-এর size/duration ভুল → কখনো কখনো IDR frame করাপ্ট হয়ে yেতো → decoder "reference picture missing"/black screen
+  - এখন firstSampleFlags সঠিকভাবে প্রথম স্যাম্পলে apply হয়, বাকি সব sample নিজ নিজ offset-এ পার্স হয়
+  - Keyframe detection (sample_depends_on=2) এখন সব IDR সঠিকভাবে শনাক্ত করে → প্রতি 2 সেকেন্ডে IDR-এ SPS/PPS inject হয়
+- PMT descriptors (v4.2.3-এ যোগ করা) বহাল: AVC1 registration + AVC video descriptor + AAAC registration + Bengali lang
+- ফলাফল: ffmpeg/ffprobe-এ H.264 High@3.1 1024×576 স্পষ্ট decode হয়, ছবি আসে, "Packet corrupt" warning আর আসে না (বাদে mid-stream join-এর স্বাভাবিক "reference picture missing" — প্রথম IDR না পাওয়া পর্যন্ত)
+
+## v4.2.3 — Black-screen deep fix (descriptor) 🔧
 
 - **PMT-তে H.264 descriptor যোগ করা হয়েছে** — এটাই ছিল black screen-এর মূল কারণ!
   - `registration descriptor (tag=0x05)` → format_identifier = "AVC1" (VLC/Kodi/MX/TiviMate-কে বোঝায় এই PID-তে H.264/AVC ভিডিও আছে)
